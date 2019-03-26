@@ -3,9 +3,12 @@ package dev.miha.restapidemo.events;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,8 +17,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //junit4기준으로 테스트 작
 @RunWith(SpringRunner.class)
@@ -29,6 +31,9 @@ public class EventControllerTests {
 
   @Autowired
   ObjectMapper objectMapper;  // 임의의 빈으로 등록
+
+  @MockBean   //슬라이스테스트기때문에 용 빈만 등록이 되어있다. 레파지토리에 해당하는 빈을 등록
+  EventRepository eventRepository;  //목 객체기때문에 세이브를 해도 리턴되는 값은 null 이다. 스터빙을 해주지 않으면 NullPointerException 발생
 
   @Test
   public void createEvent() throws Exception {
@@ -44,15 +49,19 @@ public class EventControllerTests {
             .limitOfEnrollment(100)
             .location("강남역 스타트업 팩토리")
             .build();
+    event.setId(10);
+    Mockito.when(eventRepository.save(event)).thenReturn(event);  //스터빙. save가 호출이 되면 event를 return 하라
 
     mockMvc.perform(post("/api/events")    //perform요청한다,  http post 요청을 보낸
                 .contentType(MediaType.APPLICATION_JSON_UTF8) //요청의 본문에 제이슨일 담아 보내고 있다 를 알려주는거
                 .accept(MediaTypes.HAL_JSON)  //어떠한 응답을 원한다 HAL 형식으로
                 .content(objectMapper.writeValueAsString(event))
               )
-            .andDo(print()) //어떤 응답과 요청을 받았는지 볼수있다.
+            .andDo(print()) //어떤 응답과 요청을 받았는지 볼수있다. /여기서 나오는 모든 내용은 andExpect()로 검증해볼수있다.
             .andExpect(status().isCreated())  //perform하고나면 응답이 나온다. 그 응답을 확인한다.
             .andExpect(jsonPath("id").exists())
+            .andExpect(header().exists(HttpHeaders.LOCATION))
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE)) // 특정한 값이 나오는지
     ;
   }
 }

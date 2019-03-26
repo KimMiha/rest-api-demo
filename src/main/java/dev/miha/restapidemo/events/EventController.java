@@ -15,10 +15,18 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE) //모든 핸들러는 이런HAL 응답으로 보내게 된다.
 public class EventController {
 
+  private final EventRepository eventRepository;
+
+  public EventController(EventRepository eventRepository){
+    this.eventRepository = eventRepository;
+  }
+
   @PostMapping
   public ResponseEntity createEvent(@RequestBody Event event){
-    URI createdUri = linkTo(EventController.class).slash("{id}").toUri();
-    event.setId(10);
+    Event newEvent = this.eventRepository.save(event);
+
+    URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+
     return ResponseEntity.created(createdUri).body(event);  //created로 보낼때는 url이 있어야한다.
   }
 }

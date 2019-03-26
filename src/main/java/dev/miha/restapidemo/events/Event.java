@@ -1,7 +1,12 @@
 package dev.miha.restapidemo.events;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
 import java.time.LocalDateTime;
 
 // 컴파일 시점에 추가적인 코드들이 생성된다. Event.class 에서 확인
@@ -11,8 +16,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor @NoArgsConstructor  // 기본생성자와 모든 아규먼트를 가지고 있는 생성자를 만들기 위해 추가.
 @EqualsAndHashCode(of = "id") // 모든 필드를 기본적으로 사용하는데, 서로 연관관계가 상호참조하는 관계가 되버리면 Stack Overflow 발생할 수 있다. 필드를 더 추가 가능하지만 절대로 연관관계가 있는건 X
 @Getter @Setter   // @Data는 @EqualsAndHashCode도 같이 구현해 주는데 모든 프로퍼티를 가지고 전부 만들어버려서 권장하지 않음.
+@Entity
 public class Event {
 
+  @Id
+  @GeneratedValue
   private Integer id;
   private String name;
   private String description;
@@ -26,6 +34,7 @@ public class Event {
   private int limitOfEnrollment;
   private boolean offline;
   private boolean free;
+  @Enumerated(EnumType.STRING)  // ordinal 은 순서에 따라 숫자값이 저장되는데 순서가 바뀌면 데이터가 완전히 꼬이게되므로 string으로
   private EventStatus eventStatus;
 
 }
