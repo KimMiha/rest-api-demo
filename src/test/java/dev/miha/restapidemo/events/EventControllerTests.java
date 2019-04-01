@@ -1,11 +1,12 @@
 package dev.miha.restapidemo.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -21,7 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 //junit4기준으로 테스트 작
 @RunWith(SpringRunner.class)
-@WebMvcTest //웹과 관련된 빈들이 모두 등록된다. MockMvc를 주입받아서 손쉽게 사용
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTests {
   //mockMvc를 사용하면 mocking이 되어있는 dispatcher servlet을 상대로 가짜요청과 응답을, 가짜 요청을 만들어서 dispatcher servlet에 보내고 그 응답을 확인할수있는 테스트를 만들수있다.
   //웹과 관련된것(빈)만 등록하기때문에, 슬라이싱 테스트라고도 한다. 계층별로..나눠져서 테스트용 빈들을 등록해서 조금더 빠르다. 구역을 나눠서 테스트하는 거라고 보면되지만, 단위테스트라고 하기에는 어렵다. 너무 많은게 개임되어있어서.
@@ -32,12 +34,13 @@ public class EventControllerTests {
   @Autowired
   ObjectMapper objectMapper;  // 임의의 빈으로 등록
 
-  @MockBean   //슬라이스테스트기때문에 용 빈만 등록이 되어있다. 레파지토리에 해당하는 빈을 등록
+  @MockBean   //슬라이스테스트기때문에 웹용 빈만 등록이 되어있다. 레파지토리에 해당하는 빈을 등록
   EventRepository eventRepository;  //목 객체기때문에 세이브를 해도 리턴되는 값은 null 이다. 스터빙을 해주지 않으면 NullPointerException 발생
 
   @Test
   public void createEvent() throws Exception {
     Event event = Event.builder()
+            .id(100)
             .name("Spring")
             .description("REST API Development with Spring")
             .beginEnrollmentDateTime(LocalDateTime.of(2019,03,26,14,00))
@@ -48,9 +51,10 @@ public class EventControllerTests {
             .maxPrice(200)
             .limitOfEnrollment(100)
             .location("강남역 스타트업 팩토리")
+            .free(true)
+            .offline(false)
+            .eventStatus(EventStatus.PUBLISHED)
             .build();
-    event.setId(10);
-    Mockito.when(eventRepository.save(event)).thenReturn(event);  //스터빙. save가 호출이 되면 event를 return 하라
 
     mockMvc.perform(post("/api/events")    //perform요청한다,  http post 요청을 보낸
                 .contentType(MediaType.APPLICATION_JSON_UTF8) //요청의 본문에 제이슨일 담아 보내고 있다 를 알려주는거
@@ -62,6 +66,9 @@ public class EventControllerTests {
             .andExpect(jsonPath("id").exists())
             .andExpect(header().exists(HttpHeaders.LOCATION))
             .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE)) // 특정한 값이 나오는지
+            .andExpect(jsonPath("id").value(Matchers.not(100)))
+            .andExpect(jsonPath("free").value(Matchers.not(true)))
+            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
     ;
   }
 }

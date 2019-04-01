@@ -1,12 +1,8 @@
 package dev.miha.restapidemo.events;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 // 컴파일 시점에 추가적인 코드들이 생성된다. Event.class 에서 확인
@@ -35,6 +31,6 @@ public class Event {
   private boolean offline;
   private boolean free;
   @Enumerated(EnumType.STRING)  // ordinal 은 순서에 따라 숫자값이 저장되는데 순서가 바뀌면 데이터가 완전히 꼬이게되므로 string으로
-  private EventStatus eventStatus;
+  private EventStatus eventStatus = EventStatus.DRAFT;
 
 }
