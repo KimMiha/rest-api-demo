@@ -18,18 +18,18 @@ public class Event {
   @Id
   @GeneratedValue
   private Integer id;
-  private String name;
-  private String description;
-  private LocalDateTime beginEnrollmentDateTime;
-  private LocalDateTime closeEnrollmentDateTime;
-  private LocalDateTime beginEventDateTime;
-  private LocalDateTime endEventDateTime;
-  private String location; // (optional) 이게 없으면 온라인 모임
-  private int basePrice; // (optional)
-  private int maxPrice; // (optional)
-  private int limitOfEnrollment;
-  private boolean offline;
-  private boolean free;
+  private String name;  // 이벤트 명
+  private String description; // 설명
+  private LocalDateTime beginEnrollmentDateTime;  // 등록 시작일시
+  private LocalDateTime closeEnrollmentDateTime;  // 종료일시
+  private LocalDateTime beginEventDateTime; // 이벤트 시작일시
+  private LocalDateTime endEventDateTime;   // 이벤트 종료일시
+  private String location;  // (optional) 이벤트 위치 없으면 온라인 모임
+  private int basePrice;  // (optional) 기본 금액
+  private int maxPrice; // (optional) 최고 금액
+  private int limitOfEnrollment;  // 등록한도
+  private boolean offline;  // 오프라인 모임인지
+  private boolean free;   // 무료인지
   @Enumerated(EnumType.STRING)  // ordinal 은 순서에 따라 숫자값이 저장되는데 순서가 바뀌면 데이터가 완전히 꼬이게되므로 string으로
   private EventStatus eventStatus = EventStatus.DRAFT;
 
