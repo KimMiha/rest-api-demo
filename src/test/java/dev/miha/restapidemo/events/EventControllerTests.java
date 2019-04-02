@@ -94,4 +94,15 @@ public class EventControllerTests {
             .andExpect(status().isBadRequest())  //perform하고나면 응답이 나온다. 그 응답을 확인한다.
     ;
   }
+
+  @Test
+  public void createEvent_Bad_Request_Empty_Input() throws Exception {
+    EventDto eventDto = EventDto.builder().build();
+
+    this.mockMvc.perform(post("/api/events")
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .content(this.objectMapper.writeValueAsString(eventDto))
+              )
+            .andExpect(status().isBadRequest());
+  }
 }
