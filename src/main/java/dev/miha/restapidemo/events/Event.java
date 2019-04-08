@@ -33,4 +33,11 @@ public class Event {
   @Enumerated(EnumType.STRING)  // ordinal 은 순서에 따라 숫자값이 저장되는데 순서가 바뀌면 데이터가 완전히 꼬이게되므로 string으로
   private EventStatus eventStatus = EventStatus.DRAFT;
 
+  public void update() {
+    //update free
+    this.free = (this.basePrice == 0 && this.maxPrice == 0) ? true : false ;
+
+    //update offline
+    this.offline = (this.location == null || this.location.isBlank() ) ? false : true ; //isBlank는 11에서부터 추가되었다.
+  }
 }
