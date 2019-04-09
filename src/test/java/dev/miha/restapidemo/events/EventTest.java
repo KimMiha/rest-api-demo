@@ -1,10 +1,14 @@
 package dev.miha.restapidemo.events;
 
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@RunWith(JUnitParamsRunner.class) // 파라미터를 사용한 테스트코드를 만들기 쉽게 해주는 라이브러리.  JUnit에서 메소드 파라미터를 사용할수있게 해준다.
 public class EventTest {
 
   @Test
@@ -34,66 +38,49 @@ public class EventTest {
   }
 
   @Test
-  public void testFree(){
+  @Parameters({
+          "0, 0, true",
+          "100, 0, false",
+          "0, 100, false",
+          "100, 100, false"
+  })
+  public void testFree(int basePrice, int maxPrice, boolean isFree){
     //given
     Event event = Event.builder()
-            .basePrice(0)
-            .maxPrice(0)
+            .basePrice(basePrice)
+            .maxPrice(maxPrice)
             .build();
 
     //when
     event.update();
 
     //then
-    assertThat(event.isFree()).isTrue();
-
-    //given
-    event = Event.builder()
-            .basePrice(100)
-            .maxPrice(0)
-            .build();
-
-    //when
-    event.update();
-
-    //then
-    assertThat(event.isFree()).isFalse();
-
-    //given
-    event = Event.builder()
-            .basePrice(0)
-            .maxPrice(100)
-            .build();
-
-    //when
-    event.update();
-
-    //then
-    assertThat(event.isFree()).isFalse();
+    assertThat(event.isFree()).isEqualTo(isFree);
   }
 
   @Test
-  public void testOffline(){
+  @Parameters
+  public void testOffline(String location, boolean isOffline){
     //given
     Event event = Event.builder()
-            .location("강남역 스타트업 팩토리")
+            .location(location)
             .build();
 
     //when
     event.update();
 
     //then
-    assertThat(event.isOffline()).isTrue();
+    assertThat(event.isOffline()).isEqualTo(isOffline);
 
-    //given
-    event = Event.builder()
-            .build();
+  }
 
-    //when
-    event.update();
-
-    //then
-    assertThat(event.isOffline()).isFalse();
+  // parametersFor 라는게 컨벤션인데 테스트메소드 명 앞에 프리픽스로 붙여주면 알아서 찾아가 사용함.
+  private Object[] parametersForTestOffline(){  // 조금더 type safe 하게
+    return new Object[] {
+            new Object[] {"next stage", true},
+            new Object[] {null, false},
+            new Object[] {"   ", false}
+    };
   }
 
 }
