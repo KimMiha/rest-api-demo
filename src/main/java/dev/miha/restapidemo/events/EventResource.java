@@ -1,18 +1,14 @@
 package dev.miha.restapidemo.events;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import org.springframework.hateoas.ResourceSupport;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
 
-public class EventResource extends ResourceSupport {
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
-  @JsonUnwrapped  // event 로 감싸진 결과가 나타나는데, 그게 싫다면 이 어노테이션을 쓴다.
-  private Event event;
+public class EventResource extends Resource<Event> {      //ResourceSupport 하위에 있는 클래스. get에 @JsonUnwrapped 가 이미 선언되어있음.
 
-  public EventResource(Event event){
-    this.event = event;
-  }
-
-  public  Event getEvent(){
-    return event;
+  public EventResource(Event event, Link... links) {
+    super(event, links);
+    add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
   }
 }

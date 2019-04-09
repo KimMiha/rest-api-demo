@@ -2,7 +2,6 @@ package dev.miha.restapidemo.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.miha.restapidemo.common.TestDescription;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

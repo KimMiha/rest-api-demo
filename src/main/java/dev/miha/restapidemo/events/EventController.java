@@ -51,7 +51,6 @@ public class EventController {
     URI createdUri = selfLinkBuilder.toUri();
     EventResource eventResource = new EventResource(event);
     eventResource.add(linkTo(EventController.class).withRel("query-events"));
-    eventResource.add(selfLinkBuilder.withSelfRel());
     eventResource.add(selfLinkBuilder.withRel("update-event"));
     return ResponseEntity.created(createdUri).body(eventResource);  //created로 보낼때는 url이 있어야한다.
     // .body(event) 로 event를 담아서 보낼수있었던 이유는? 자바빈 스팩을 따르기 때문에 beanSerializer를 사용해서 객체를 json으로 변환가능(objectMapper이)
