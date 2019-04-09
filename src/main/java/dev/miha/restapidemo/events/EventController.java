@@ -4,6 +4,7 @@ import lombok.val;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -46,8 +47,13 @@ public class EventController {
     Event event = modelMapper.map(eventDto, Event.class); //eventDto -> event 로
     event.update(); // 서비스로 빼도 될듯
     Event newEvent = this.eventRepository.save(event);
-    URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-    return ResponseEntity.created(createdUri).body(event);  //created로 보낼때는 url이 있어야한다.
+    ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
+    URI createdUri = selfLinkBuilder.toUri();
+    EventResource eventResource = new EventResource(event);
+    eventResource.add(linkTo(EventController.class).withRel("query-events"));
+    eventResource.add(selfLinkBuilder.withSelfRel());
+    eventResource.add(selfLinkBuilder.withRel("update-event"));
+    return ResponseEntity.created(createdUri).body(eventResource);  //created로 보낼때는 url이 있어야한다.
     // .body(event) 로 event를 담아서 보낼수있었던 이유는? 자바빈 스팩을 따르기 때문에 beanSerializer를 사용해서 객체를 json으로 변환가능(objectMapper이)
     // .body(errors) 가 안되는 이유는 errors가 자바빈 스팩을 준수하지 않기때문에 beanSerializer 사용못함, 즉 json으로 변환 불. so, ErrorsSerializer를 만들어서해결해보자
   }
