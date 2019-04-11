@@ -1,12 +1,15 @@
 package dev.miha.restapidemo.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.miha.restapidemo.common.RestDocsConfiguration;
 import dev.miha.restapidemo.common.TestDescription;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,7 +18,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -23,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureRestDocs
+@Import(RestDocsConfiguration.class)  //다른 스프링 빈 설정파일을 읽어와서 사용하는 방법중 하나.
 public class EventControllerTests {
   //mockMvc를 사용하면 mocking이 되어있는 dispatcher servlet을 상대로 가짜요청과 응답을, 가짜 요청을 만들어서 dispatcher servlet에 보내고 그 응답을 확인할수있는 테스트를 만들수있다.
   //웹과 관련된것(빈)만 등록하기때문에, 슬라이싱 테스트라고도 한다. 계층별로..나눠져서 테스트용 빈들을 등록해서 조금더 빠르다. 구역을 나눠서 테스트하는 거라고 보면되지만, 단위테스트라고 하기에는 어렵다. 너무 많은게 개임되어있어서.
@@ -66,6 +76,54 @@ public class EventControllerTests {
             .andExpect(jsonPath("_links.self").exists())
             .andExpect(jsonPath("_links.query-events").exists())
             .andExpect(jsonPath("_links.update-event").exists())
+            .andDo(document("create-event",
+                    links(
+                            linkWithRel("self").description("link to self"),
+                            linkWithRel("query-events").description("link to query events"),
+                            linkWithRel("update-event").description("link to update on existing event")
+                    ),
+                    requestHeaders(
+                            headerWithName(HttpHeaders.ACCEPT).description("accept headeer"),
+                            headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                    ),
+                    requestFields(
+                            fieldWithPath("name").description("Name of new event"),
+                            fieldWithPath("description").description("description of new event"),
+                            fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                            fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                            fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                            fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                            fieldWithPath("location").description("location of new evnet"),
+                            fieldWithPath("basePrice").description("base price of new event"),
+                            fieldWithPath("maxPrice").description("max price of new event"),
+                            fieldWithPath("limitOfEnrollment").description("limit of enrollment")
+                    ),
+                    responseHeaders(
+                            headerWithName(HttpHeaders.LOCATION).description("location headeer"),
+                            headerWithName(HttpHeaders.CONTENT_TYPE).description("HAL Json type")
+
+                    ),
+//                  relaxedResponseFields(  // relaxed 라는 프리픽스를 사용하면 문서의 일부분만 하겠다. 단점-정확한 문서를 만들지 못함
+                    responseFields(         // 위에서 links를 확인했지만 변화를 감지하고 제대로 테스트를 하기위해서는 relaxed는 지양하는것이 좋다.
+                            fieldWithPath("id").description("Identifier of new event"),
+                            fieldWithPath("name").description("Name of new event"),
+                            fieldWithPath("description").description("description of new event"),
+                            fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                            fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                            fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                            fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                            fieldWithPath("location").description("location of new evnet"),
+                            fieldWithPath("basePrice").description("base price of new event"),
+                            fieldWithPath("maxPrice").description("max price of new event"),
+                            fieldWithPath("limitOfEnrollment").description("limit of enrollment"),
+                            fieldWithPath("free").description("It tells if this event is free or not"),
+                            fieldWithPath("offline").description("It tells if this event is offline event or not"),
+                            fieldWithPath("eventStatus").description("evnet status"),
+                            fieldWithPath("_links.self.href").description("link to self"),
+                            fieldWithPath("_links.query-events.href").description("link to query event list"),
+                            fieldWithPath("_links.update-event.href").description("link to update existing event")
+                    )
+            ));
     ;
   }
 
