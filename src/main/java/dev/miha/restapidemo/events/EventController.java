@@ -1,8 +1,8 @@
 package dev.miha.restapidemo.events;
 
-import lombok.val;
 import org.modelmapper.ModelMapper;
 
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +52,7 @@ public class EventController {
     EventResource eventResource = new EventResource(event);
     eventResource.add(linkTo(EventController.class).withRel("query-events"));
     eventResource.add(selfLinkBuilder.withRel("update-event"));
+    eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
     return ResponseEntity.created(createdUri).body(eventResource);  //created로 보낼때는 url이 있어야한다.
     // .body(event) 로 event를 담아서 보낼수있었던 이유는? 자바빈 스팩을 따르기 때문에 beanSerializer를 사용해서 객체를 json으로 변환가능(objectMapper이)
     // .body(errors) 가 안되는 이유는 errors가 자바빈 스팩을 준수하지 않기때문에 beanSerializer 사용못함, 즉 json으로 변환 불. so, ErrorsSerializer를 만들어서해결해보자

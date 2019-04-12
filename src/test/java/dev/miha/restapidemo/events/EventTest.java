@@ -34,7 +34,7 @@ public class EventTest {
 
     // then
     assertThat(event.getName()).isEqualTo(name);
-    assertThat(event.getName()).isEqualTo(description);
+    assertThat(event.getDescription()).isEqualTo(description);
   }
 
   @Test
