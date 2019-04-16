@@ -198,10 +198,11 @@ public class EventControllerTests {
             .andExpect(status().isBadRequest()) //badRequest 로 받을수있는 응답에 본문에 메세지가 있길 바라고, 그 메세지를 어떻게 만드는지 확인해보겠다.
             .andDo(print())
             //에러배열중에서도 어떤필드에서 발생하는지 기본 메세지는 뭐고 에러코드는 무엇이고 입력거절당한 그 값이 무엇이였는지 등등...
-            .andExpect(jsonPath("$[0].objectName").exists())
+            .andExpect(jsonPath("content[0].objectName").exists())
 //            .andExpect(jsonPath("$[0].field").exists())
-            .andExpect(jsonPath("$[0].defaultMessage").exists())
-            .andExpect(jsonPath("$[0].code").exists())
+            .andExpect(jsonPath("content[0].defaultMessage").exists())
+            .andExpect(jsonPath("content[0].code").exists())
+            .andExpect(jsonPath("_links.index").exists())
 //            .andExpect(jsonPath("$[0].rejectedVallue").exists())
             ;
   }
