@@ -3,12 +3,16 @@ package dev.miha.restapidemo.events;
 import dev.miha.restapidemo.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,6 +61,14 @@ public class EventController {
     return ResponseEntity.created(createdUri).body(eventResource);  //created로 보낼때는 url이 있어야한다.
     // .body(event) 로 event를 담아서 보낼수있었던 이유는? 자바빈 스팩을 따르기 때문에 beanSerializer를 사용해서 객체를 json으로 변환가능(objectMapper이)
     // .body(errors) 가 안되는 이유는 errors가 자바빈 스팩을 준수하지 않기때문에 beanSerializer 사용못함, 즉 json으로 변환 불. so, ErrorsSerializer를 만들어서해결해보자
+  }
+
+  @GetMapping
+  public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler)  {
+    Page<Event> page = this.eventRepository.findAll(pageable);
+    var pagedResources = assembler.toResource(page, e -> new EventResource(e)); // 각가의 이벤트를 이벤트 리소스로 변경. 이벤트마다 이동할수 있는 링크가 생긴다.
+    pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+    return ResponseEntity.ok(pagedResources);
   }
 
   private ResponseEntity badRequest(Errors errors) {
