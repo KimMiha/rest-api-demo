@@ -1,5 +1,6 @@
 package dev.miha.restapidemo.events;
 
+import dev.miha.restapidemo.accounts.Account;
 import lombok.*;
 
 import javax.persistence.*;
@@ -32,6 +33,8 @@ public class Event {
   private boolean free;   // 무료인지
   @Enumerated(EnumType.STRING)  // ordinal 은 순서에 따라 숫자값이 저장되는데 순서가 바뀌면 데이터가 완전히 꼬이게되므로 string으로
   private EventStatus eventStatus = EventStatus.DRAFT;
+  @ManyToOne  //단방향
+  private Account manager;
 
   public void update() {
     //update free
