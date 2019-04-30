@@ -1,6 +1,9 @@
 package dev.miha.restapidemo.accounts;
 
+import org.hamcrest.Matchers;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,12 +16,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
 public class AccountServiceTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Autowired
   AccountService accountService;
@@ -49,11 +54,10 @@ public class AccountServiceTest {
   @Test
   public void findByUsernameFail() {
     String username = "random@email.com";
-    try {
-      accountService.loadUserByUsername(username);
-      fail("supposed to be failed");
-    } catch (UsernameNotFoundException e) {
-      assertThat(e.getMessage()).containsSequence(username);
-    }
+    // 예외를 예상하는 것이기 때문에 먼저 예상하는 예외가 무엇인지 명시해줘야 한다.
+    expectedException.expect(UsernameNotFoundException.class);
+    expectedException.expectMessage(Matchers.containsString(username));
+
+    accountService.loadUserByUsername(username);
   }
 }
