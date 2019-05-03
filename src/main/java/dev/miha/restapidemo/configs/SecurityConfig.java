@@ -50,16 +50,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //스프링 부트가 제공하는 패스리퀘스 스태틱리소스에대한 기본 위치를 다 가져와서 시큐리티가 적용되지 않도록
     web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
   }
-
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {  //이걸 재정의하면 스프링시큐리티를 마음대로설정가능
-    http
-            .anonymous()  //익명사용자 허용
-            .and()
-            .formLogin()  //폼 인증 사용
-            .and()
-            .authorizeRequests()  // 허용할 메소드가 있는데 get요청의 api/하위전체의 모든걸 익명 허용하고
-            .mvcMatchers(HttpMethod.GET, "/api/**").anonymous()
-            .anyRequest().authenticated();  //나머지는 인증이 필요로하다
-  }
 }
