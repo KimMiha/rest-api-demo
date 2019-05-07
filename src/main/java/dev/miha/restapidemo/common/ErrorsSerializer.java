@@ -18,7 +18,7 @@ public class ErrorsSerializer extends JsonSerializer<Errors> {
     errors.getFieldErrors().forEach( e -> {
      try {
        jsonGenerator.writeStartObject();  //json object 를 만들고 (start)
-       jsonGenerator.writeStringField("filed", e.getField());
+       jsonGenerator.writeStringField("field", e.getField());
        jsonGenerator.writeStringField("objectName", e.getObjectName());
        jsonGenerator.writeStringField("code", e.getCode());
        jsonGenerator.writeStringField("defaultMessage", e.getDefaultMessage());
