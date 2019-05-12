@@ -4,6 +4,7 @@ import dev.miha.restapidemo.accounts.Account;
 import dev.miha.restapidemo.accounts.AccountRepository;
 import dev.miha.restapidemo.accounts.AccountRole;
 import dev.miha.restapidemo.accounts.AccountService;
+import dev.miha.restapidemo.common.AppProperties;
 import dev.miha.restapidemo.common.BaseControllerTest;
 import dev.miha.restapidemo.common.TestDescription;
 import org.junit.Before;
@@ -43,6 +44,9 @@ public class EventControllerTests extends BaseControllerTest {
 
   @Autowired
   AccountRepository accountRepository;
+
+  @Autowired
+  AppProperties appProperties;
 
   // inMemoryDB긴 하지만 테스트간에는 DB를 서로 공유하기 때문에 데이터 자체가 독립작이질 못하다. 그래서 데이터를 전부 지우기.
   @Before
@@ -144,22 +148,17 @@ public class EventControllerTests extends BaseControllerTest {
 
   private String getAccessToken() throws Exception {
     //Given
-    String username = "dev.mihakim@gmail.com";
-    String password = "qwer1234";
     Account miha = Account.builder()
-            .email(username)
-            .password(password)
+            .email(appProperties.getUserUsername())
+            .password(appProperties.getUserPassword())
             .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
             .build();
     this.accountService.saveAccount(miha);
 
-    String clintId = "myApp";
-    String clientSecret = "pass";
-
     ResultActions perform = this.mockMvc.perform(MockMvcRequestBuilders.post("/oauth/token") // oauth/token 핸들러 제공
-            .with(httpBasic(clintId, clientSecret))   // 테스트용 디펜던시 추가해야함 spring-security-test
-            .param("username", username)
-            .param("password", password)
+            .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))   // 테스트용 디펜던시 추가해야함 spring-security-test
+            .param("username", appProperties.getUserUsername())
+            .param("password", appProperties.getUserPassword())
             .param("grant_type", "password"));
     var responseBody = perform.andReturn().getResponse().getContentAsString();
     Jackson2JsonParser parser = new Jackson2JsonParser();

@@ -3,6 +3,7 @@ package dev.miha.restapidemo.configs;
 import dev.miha.restapidemo.accounts.Account;
 import dev.miha.restapidemo.accounts.AccountRole;
 import dev.miha.restapidemo.accounts.AccountService;
+import dev.miha.restapidemo.common.AppProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -34,14 +35,24 @@ public class AppConfig {
       @Autowired
       AccountService accountService;
 
+      @Autowired
+      AppProperties appProperties;
+
       @Override
       public void run(ApplicationArguments args) throws Exception {
-        Account miha = Account.builder()
-                .email("dev.mihakim@gmail.com")
-                .password("qwer1234")
+        Account admin = Account.builder()
+                .email(appProperties.getAdminUsername())
+                .password(appProperties.getAdminPassword())
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
-        accountService.saveAccount(miha);
+        accountService.saveAccount(admin);
+
+        Account user = Account.builder()
+                .email(appProperties.getUserUsername())
+                .password(appProperties.getUserPassword())
+                .roles(Set.of(AccountRole.USER))
+                .build();
+        accountService.saveAccount(user);
       }
     };
   }
