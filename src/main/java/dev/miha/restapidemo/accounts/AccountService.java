@@ -3,7 +3,6 @@ package dev.miha.restapidemo.accounts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,7 +31,8 @@ public class AccountService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     Account account = accountRepository.findByEmail(username)
             .orElseThrow(() -> new UsernameNotFoundException(username));
-    return new User(account.getEmail(), account.getPassword(), authorities(account.getRoles()));
+    //accountAdpter는 User를 상속 받았고 User는 UserDetails이기 때문에 AccountAdpter로 리턴가능
+    return new AccountAdapter(account);
   }
 
   private Collection<? extends GrantedAuthority> authorities(Set<AccountRole> roles) {
